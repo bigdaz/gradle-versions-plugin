@@ -42,8 +42,8 @@ class GradleUpdateResult implements Comparable<GradleUpdateResult> {
       this.isFailure = false
       this.reason = "update check disabled"
     } else if (release instanceof GradleUpdateChecker.ReleaseStatus.Available) {
-      this.version = release.gradleVersion.version
-      this.isUpdateAvailable = release.gradleVersion > running.gradleVersion
+      this.version = release.getGradleVersion().getVersion()
+      this.isUpdateAvailable = release.getGradleVersion() > running.getGradleVersion()
       this.isFailure = false
       this.reason = "" // empty string so the field is serialized
     } else if (release instanceof GradleUpdateChecker.ReleaseStatus.Unavailable) {
@@ -55,7 +55,7 @@ class GradleUpdateResult implements Comparable<GradleUpdateResult> {
       this.version = "" // empty string so the field is serialized
       this.isUpdateAvailable = false
       this.isFailure = true
-      this.reason = release.reason
+      this.reason = release.getReason()
     } else {
       throw new IllegalStateException("ReleaseStatus subtype [" + release.class + "] not yet implemented")
     }

@@ -4,13 +4,13 @@ import org.gradle.testkit.runner.GradleRunner
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import java.io.File
+import java.nio.file.Files
 import spock.lang.Specification
 
 final class JavaLibrarySpec extends Specification {
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
 
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
   private File buildFile
   private String mavenRepoUrl
 
@@ -20,7 +20,7 @@ final class JavaLibrarySpec extends Specification {
 
   def "Show updates for an api dependency in a java-library project"() {
     given:
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         plugins {
@@ -41,7 +41,7 @@ final class JavaLibrarySpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()

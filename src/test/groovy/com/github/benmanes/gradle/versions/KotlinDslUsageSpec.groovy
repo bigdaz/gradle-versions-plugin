@@ -1,21 +1,20 @@
 package com.github.benmanes.gradle.versions
 
+import java.io.File
+import java.nio.file.Files
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
 
 final class KotlinDslUsageSpec extends Specification {
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
 
-  @Rule
-  TemporaryFolder testProjectDir = new TemporaryFolder()
   private File buildFile
 
   def 'setup'() {
     def mavenRepoUrl = getClass().getResource('/maven/').toURI()
 
-    buildFile = testProjectDir.newFile('build.gradle.kts')
+    buildFile = new File(testProjectDir, 'build.gradle.kts')
     buildFile <<
       """
         import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
@@ -32,7 +31,7 @@ final class KotlinDslUsageSpec extends Specification {
         }
 
         dependencies {
-          compile("com.google.inject:guice:2.0")
+          implementation("com.google.inject:guice:2.0")
         }
         """.stripIndent()
   }
@@ -63,7 +62,7 @@ final class KotlinDslUsageSpec extends Specification {
     def result = GradleRunner.create()
       .withGradleVersion(gradleVersion)
       .withPluginClasspath()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .forwardStdError(srdErrWriter)
       .build()

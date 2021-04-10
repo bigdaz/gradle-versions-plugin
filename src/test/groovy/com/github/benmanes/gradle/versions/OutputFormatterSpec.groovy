@@ -2,14 +2,15 @@ package com.github.benmanes.gradle.versions
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
+import java.io.File
+import java.nio.file.Files
 import groovy.json.JsonSlurper
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 final class OutputFormatterSpec extends Specification {
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
+
   private File buildFile
   private List<File> pluginClasspath
   private String reportFolder
@@ -28,7 +29,7 @@ final class OutputFormatterSpec extends Specification {
       .collect { it.absolutePath.replace('\\', '\\\\') } // escape backslashes in Windows paths
       .collect { "'$it'" }
       .join(", ")
-    reportFolder = "${testProjectDir.root.path.replaceAll("\\\\", '/')}/build/dependencyUpdates"
+    reportFolder = "${testProjectDir.path.replaceAll("\\\\", '/')}/build/dependencyUpdates"
     mavenRepoUrl = getClass().getResource('/maven/').toURI()
   }
 
@@ -36,7 +37,7 @@ final class OutputFormatterSpec extends Specification {
     given:
     def srdErrWriter = new StringWriter()
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -55,7 +56,7 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates {
@@ -66,7 +67,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .forwardStdError(srdErrWriter)
       .build()
@@ -80,7 +81,7 @@ final class OutputFormatterSpec extends Specification {
   def 'outputFormatter defaults to text output'() {
     given:
     def reportFile = new File(reportFolder, "report.txt")
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -99,7 +100,7 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates {
@@ -109,7 +110,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -122,7 +123,7 @@ final class OutputFormatterSpec extends Specification {
   def 'outputFormatter plain - outputs text output'() {
     given:
     def reportFile = new File(reportFolder, "report.txt")
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -141,7 +142,7 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates {
@@ -152,7 +153,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -178,7 +179,7 @@ final class OutputFormatterSpec extends Specification {
     given:
     def jsonSlurper = new JsonSlurper()
     def reportFile = new File(reportFolder, 'report.json')
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -197,7 +198,7 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates {
@@ -208,7 +209,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -292,7 +293,7 @@ final class OutputFormatterSpec extends Specification {
     given:
     def xmlParser = new XmlParser()
     def reportFile = new File(reportFolder, 'report.xml')
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -311,7 +312,7 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates {
@@ -322,7 +323,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -396,7 +397,7 @@ final class OutputFormatterSpec extends Specification {
   def 'outputFormatter plain - outputs text output with user reasons'() {
     given:
     def reportFile = new File(reportFolder, "report.txt")
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -415,14 +416,14 @@ final class OutputFormatterSpec extends Specification {
         }
 
         dependencies {
-          compile('backport-util-concurrent:backport-util-concurrent:3.1') { because 'I said so' }
-          compile('backport-util-concurrent:backport-util-concurrent-java12:3.1')
-          compile('com.google.guava:guava:99.0-SNAPSHOT') { because 'I know the future' }
-          compile('com.google.guava:guava-tests:99.0-SNAPSHOT')
-          compile('com.google.inject:guice:2.0') { because 'That\\'s just the way it is' }
-          compile('com.google.inject.extensions:guice-multibindings:2.0')
-          compile('com.github.ben-manes:unresolvable:1.0') { because 'Life is hard' }
-          compile('com.github.ben-manes:unresolvable2:1.0')
+          implementation('backport-util-concurrent:backport-util-concurrent:3.1') { because 'I said so' }
+          implementation('backport-util-concurrent:backport-util-concurrent-java12:3.1')
+          implementation('com.google.guava:guava:99.0-SNAPSHOT') { because 'I know the future' }
+          implementation('com.google.guava:guava-tests:99.0-SNAPSHOT')
+          implementation('com.google.inject:guice:2.0') { because 'That\\'s just the way it is' }
+          implementation('com.google.inject.extensions:guice-multibindings:2.0')
+          implementation('com.github.ben-manes:unresolvable:1.0') { because 'Life is hard' }
+          implementation('com.github.ben-manes:unresolvable2:1.0')
         }
 
         dependencyUpdates {
@@ -433,7 +434,7 @@ final class OutputFormatterSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()

@@ -32,9 +32,9 @@ class GradleUpdateChecker {
 
   @CompileDynamic
   private void fetch() {
-    GradleReleaseChannel.values().each {
+    for (def it : GradleReleaseChannel.values()) {
       try {
-        def versionObject = new JsonSlurper().parse(new URL(API_BASE_URL + it.id), [
+        def versionObject = new JsonSlurper().parse(new URL(API_BASE_URL + it.getId()), [
           'connectTimeout': TIMEOUT_MS, 'readTimeout': TIMEOUT_MS])
         if (versionObject.version) {
           cacheMap.put(it, new ReleaseStatus.Available(GradleVersion.version(versionObject.version as String)))
@@ -101,6 +101,10 @@ class GradleUpdateChecker {
       private Available(GradleVersion gradleVersion) {
         this.gradleVersion = gradleVersion
       }
+
+      public GradleVersion getGradleVersion() {
+        return gradleVersion
+      }
     }
 
     /**
@@ -119,6 +123,10 @@ class GradleUpdateChecker {
 
       private Failure(reason) {
         this.reason = reason
+      }
+
+      public String getReason() {
+        return reason
       }
     }
   }

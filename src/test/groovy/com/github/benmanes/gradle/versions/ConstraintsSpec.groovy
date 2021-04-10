@@ -1,15 +1,15 @@
 package com.github.benmanes.gradle.versions
 
+import java.io.File
+import java.nio.file.Files
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 final class ConstraintsSpec extends Specification {
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
 
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
   private File buildFile
   private String mavenRepoUrl
 
@@ -19,7 +19,7 @@ final class ConstraintsSpec extends Specification {
 
   def "Show updates for an api dependency constraint"() {
     given:
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         plugins {
@@ -46,7 +46,7 @@ final class ConstraintsSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -58,7 +58,7 @@ final class ConstraintsSpec extends Specification {
 
   def "Does not override explicit dependency with constraint"() {
     given:
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         plugins {
@@ -86,7 +86,7 @@ final class ConstraintsSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()
@@ -99,7 +99,7 @@ final class ConstraintsSpec extends Specification {
   def "Does not show updates for an api dependency constraint when disabled"() {
     given:
     def mavenRepoUrl = getClass().getResource('/maven/').toURI()
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         plugins {
@@ -122,7 +122,7 @@ final class ConstraintsSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .withPluginClasspath()
       .build()

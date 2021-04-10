@@ -1,8 +1,8 @@
 package com.github.benmanes.gradle.versions
 
+import java.io.File
+import java.nio.file.Files
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -11,8 +11,8 @@ import static com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseCh
 import static com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel.RELEASE_CANDIDATE
 
 final class DifferentGradleVersionsSpec extends Specification {
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
 
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
   private File buildFile
   private List<File> pluginClasspath
   private String classpathString
@@ -38,7 +38,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     given:
     def srdErrWriter = new StringWriter()
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -88,7 +88,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     arguments.add('-S')
     def result = GradleRunner.create()
       .withGradleVersion(gradleVersion)
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments(arguments)
       .forwardStdError(srdErrWriter)
       .build()
@@ -126,7 +126,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     given:
     def srdErrWriter = new StringWriter()
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -145,7 +145,7 @@ final class DifferentGradleVersionsSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates.gradleReleaseChannel="${gradleReleaseChannel}"
@@ -155,7 +155,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     when:
     def result = GradleRunner.create()
       .withGradleVersion('5.0')
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .forwardStdError(srdErrWriter)
       .build()
@@ -177,7 +177,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     given:
     def srdErrWriter = new StringWriter()
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         buildscript {
@@ -196,12 +196,13 @@ final class DifferentGradleVersionsSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:3.0'
+          implementation 'com.google.inject:guice:3.0'
         }
         """.stripIndent()
 
-    testProjectDir.newFolder("gradle")
-    def verificationFile = testProjectDir.newFile('gradle/verification-metadata.xml')
+    def gradleDir = new File(testProjectDir, "gradle")
+    gradleDir.mkdir()
+    def verificationFile = new File(gradleDir, 'gradle/verification-metadata.xml')
     verificationFile <<
       """<?xml version="1.0" encoding="UTF-8"?>
         <verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.0.xsd">
@@ -277,7 +278,7 @@ final class DifferentGradleVersionsSpec extends Specification {
     when:
     def result = GradleRunner.create()
       .withGradleVersion('6.2')
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .forwardStdError(srdErrWriter)
       .build()

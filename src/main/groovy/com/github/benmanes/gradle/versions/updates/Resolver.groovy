@@ -257,17 +257,17 @@ class Resolver {
   /** Returns the coordinates for the current (declared) dependency versions. */
   @TypeChecked(SKIP)
   private Map<Coordinate.Key, Coordinate> getCurrentCoordinates(Configuration configuration) {
-    Map<Coordinate.Key, Coordinate> declared =
-      getResolvableDependencies(configuration).collectEntries {
-        return [it.key, it]
-      }
+    Map<Coordinate.Key, Coordinate> declared = new HashMap<>()
+    for (Coordinate coordinate : getResolvableDependencies(configuration)) {
+      declared.put(coordinate, coordinate.getKey())
+    }
 
     if (declared.isEmpty()) {
       return Collections.emptyMap()
     }
 
     // https://github.com/ben-manes/gradle-versions-plugin/issues/231
-    boolean transitive = declared.values().any { it.version == 'none' }
+    boolean transitive = declared.any { key, coordinate -> coordinate.getVersion() == 'none' }
 
     Map<Coordinate.Key, Coordinate> coordinates = [:]
     Configuration copy = configuration.copyRecursive().setTransitive(transitive)

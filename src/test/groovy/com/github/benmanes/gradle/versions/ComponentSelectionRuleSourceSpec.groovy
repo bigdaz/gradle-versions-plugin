@@ -1,14 +1,14 @@
 package com.github.benmanes.gradle.versions
 
+import java.io.File
+import java.nio.file.Files
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
 
 final class ComponentSelectionRuleSourceSpec extends Specification {
+  private File testProjectDir = Files.createTempDirectory('test').toFile()
 
-  @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
   private File buildFile
   private List<File> pluginClasspath
 
@@ -32,7 +32,7 @@ final class ComponentSelectionRuleSourceSpec extends Specification {
     def mavenRepoUrl = getClass().getResource('/maven/').toURI()
     def srdErrWriter = new StringWriter()
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile <<
       """
         import com.github.benmanes.gradle.versions.updates.resolutionstrategy.ComponentSelectionWithCurrent
@@ -53,7 +53,7 @@ final class ComponentSelectionRuleSourceSpec extends Specification {
         }
 
         dependencies {
-          compile 'com.google.inject:guice:2.0'
+          implementation 'com.google.inject:guice:2.0'
         }
 
         dependencyUpdates.resolutionStrategy ${assignment} {
@@ -75,7 +75,7 @@ final class ComponentSelectionRuleSourceSpec extends Specification {
 
     when:
     def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
+      .withProjectDir(testProjectDir)
       .withArguments('dependencyUpdates')
       .forwardStdError(srdErrWriter)
       .build()

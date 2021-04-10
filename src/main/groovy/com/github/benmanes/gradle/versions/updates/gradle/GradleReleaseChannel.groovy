@@ -16,4 +16,8 @@ enum GradleReleaseChannel {
   private GradleReleaseChannel(String id) {
     this.id = id
   }
+
+  public String getId() {
+    return id
+  }
 }

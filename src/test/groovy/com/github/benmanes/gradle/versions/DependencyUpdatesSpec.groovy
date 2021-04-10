@@ -407,10 +407,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'backport-util-concurrent:backport-util-concurrent:3.1'
+      implementation 'backport-util-concurrent:backport-util-concurrent:3.1'
     }
 
     when:
@@ -429,10 +429,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'com.google.inject:guice:3.0'
+      implementation 'com.google.inject:guice:3.0'
     }
 
     when:
@@ -451,10 +451,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'com.google.inject.extensions:guice-multibindings:3.0'
+      implementation 'com.google.inject.extensions:guice-multibindings:3.0'
     }
 
     when:
@@ -476,10 +476,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'backport-util-concurrent:backport-util-concurrent-java12:3.1'
+      implementation 'backport-util-concurrent:backport-util-concurrent-java12:3.1'
     }
 
     when:
@@ -497,10 +497,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'com.google.guava:guava:15.0'
+      implementation 'com.google.guava:guava:15.0'
     }
 
     when:
@@ -518,10 +518,10 @@ final class DependencyUpdatesSpec extends Specification {
     def project = new ProjectBuilder().withName('single').build()
     addRepositoryTo(project)
     project.configurations {
-      compile
+      implementation
     }
     project.dependencies {
-      compile 'com.google.guava:guava:15.0'
+      implementation 'com.google.guava:guava:15.0'
     }
 
     when:
