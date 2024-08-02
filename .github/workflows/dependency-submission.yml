@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v3
+        uses: gradle/actions/wrapper-validation@prerelease/v4
 
       - name: Configure JDK
         uses: actions/setup-java@v4
@@ -25,4 +25,4 @@ jobs:
           java-version: 11
 
       - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@v3
+        uses: gradle/actions/dependency-submission@prerelease/v4
